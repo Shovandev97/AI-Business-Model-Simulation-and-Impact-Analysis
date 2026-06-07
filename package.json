@@ -4,13 +4,13 @@
   "private": true,
   "description": "SAP Fiori-style AI-powered business model simulation and impact analysis engine.",
   "scripts": {
-    "install:all": "npm --prefix app/backend install",
-    "dev:backend": "npm --prefix app/backend run dev",
-    "dev:frontend": "http-server app/frontend -p 8080 -c-1",
+    "install:all": "npm --prefix app/frontend install",
+    "dev:backend": "cd app/backend && mvn spring-boot:run",
+    "dev:frontend": "npm --prefix app/frontend run dev",
     "dev:ml": "uvicorn app.ml.src.api:app --host 0.0.0.0 --port 5001 --reload",
     "generate:data": "python3 scripts/generate_synthetic_data.py",
     "train:ml": "python3 app/ml/src/train.py",
-    "test:backend": "npm --prefix app/backend test",
+    "test:backend": "cd app/backend && mvn test",
     "test:ml": "python3 -m pytest app/ml/tests"
   },
   "devDependencies": {
