@@ -27,16 +27,30 @@ public class ApiKeyFilter extends OncePerRequestFilter {
       chain.doFilter(request, response);
       return;
     }
-    if (!properties.getApiKey().equals(request.getHeader("x-api-key"))) {
+    if (!hasValidApiKey(request)) {
       response.setStatus(401);
       response.setContentType("application/json");
       mapper.writeValue(response.getWriter(), Map.of(
           "success", false,
           "errorCode", "UNAUTHORIZED",
           "error", "Unauthorized",
-          "message", "Missing or invalid x-api-key."));
+          "message", "Missing or invalid API key. Send x-api-key header or Authorization: Bearer token."));
       return;
     }
     chain.doFilter(request, response);
+  }
+
+  private boolean hasValidApiKey(HttpServletRequest request) {
+    String expectedApiKey = properties.getApiKey();
+    String headerApiKey = request.getHeader("x-api-key");
+    String bearerApiKey = bearerToken(request.getHeader("Authorization"));
+    return expectedApiKey != null && (expectedApiKey.equals(headerApiKey) || expectedApiKey.equals(bearerApiKey));
+  }
+
+  private String bearerToken(String authorizationHeader) {
+    if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+      return null;
+    }
+    return authorizationHeader.substring("Bearer ".length()).trim();
   }
 }
