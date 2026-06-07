@@ -1,0 +1,16 @@
+{
+  "rows": 3000,
+  "seed": 42,
+  "description": "Synthetic enterprise historical commercial model transformations with O2C outcomes.",
+  "targets": [
+    "implementationRisk",
+    "billingComplexity",
+    "revenueImpactPct",
+    "complianceRisk",
+    "delayProbability",
+    "dependencyCount",
+    "operationalEffort",
+    "downstreamIntegrationImpact"
+  ],
+  "pattern_notes": "Fields are generated from industry, segment, model type, pricing, billing cadence, integrations, process complexity and compliance footprint with realistic weighted relationships and calibrated noise."
+}

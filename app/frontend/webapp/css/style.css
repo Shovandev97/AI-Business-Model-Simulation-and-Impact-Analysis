@@ -1,0 +1,457 @@
+html,
+body,
+#content {
+  height: 100%;
+}
+
+.appPage {
+  background: #f5f8fb;
+}
+
+.layoutRoot {
+  min-height: calc(100vh - 3rem);
+  background: #f5f8fb;
+}
+
+.sideNav {
+  width: 15.5rem;
+  padding: 1rem;
+  gap: 0.4rem;
+  background: #ffffff;
+  border-right: 1px solid #d7e2ea;
+  box-sizing: border-box;
+}
+
+.sideNav .sapMBtn {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.contentPane {
+  width: calc(100% - 15.5rem);
+  height: calc(100vh - 3rem);
+}
+
+.contentInner {
+  padding: 1.25rem;
+  gap: 1rem;
+}
+
+.pageStack {
+  gap: 1rem;
+}
+
+.toolbarBand {
+  padding: 1rem 1.25rem;
+  border: 1px solid #d7e2ea;
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: 0 0.125rem 0.5rem rgba(21, 42, 61, 0.06);
+}
+
+.kpiRow {
+  gap: 0.75rem;
+}
+
+.kpiTile {
+  min-width: 13rem;
+  max-width: 18rem;
+  flex: 1 1 13rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.5rem rgba(21, 42, 61, 0.06);
+}
+
+.workTabs {
+  background: transparent;
+}
+
+.singleNavContent > .sapMITH,
+.singleNavContent .sapMITBHead,
+.singleNavContent .sapMITBTab {
+  display: none;
+}
+
+.singleNavContent .sapMITBContainerContent {
+  border: 0;
+  padding: 0;
+}
+
+.sectionGrid {
+  gap: 1rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #d7e2ea;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  gap: 0.75rem;
+  min-width: 22rem;
+  box-sizing: border-box;
+  box-shadow: 0 0.125rem 0.5rem rgba(21, 42, 61, 0.05);
+}
+
+.hiddenLegacy {
+  display: none;
+}
+
+.widePanel {
+  flex: 1 1 42rem;
+}
+
+.formPanel {
+  max-width: 80rem;
+}
+
+.createScenarioPage {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.createScenarioHeader {
+  gap: 0.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.createScenarioMessage {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.createScenarioForm {
+  width: 100%;
+  min-width: 0;
+  gap: 1.25rem;
+  box-sizing: border-box;
+}
+
+.createScenarioSection {
+  width: 100%;
+  min-width: 0;
+  gap: 0.85rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid #d7e2ea;
+  box-sizing: border-box;
+}
+
+.createScenarioSection:first-child {
+  padding-top: 0.25rem;
+  border-top: 0;
+}
+
+.createScenarioGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.createScenarioField {
+  width: 100%;
+  min-width: 0;
+  gap: 0.35rem;
+  box-sizing: border-box;
+}
+
+.createScenarioWideField {
+  grid-column: 1 / -1;
+}
+
+.createScenarioField .sapMLabel {
+  min-height: 1.125rem;
+  line-height: 1.125rem;
+}
+
+.createScenarioField .sapMInputBase,
+.createScenarioField .sapMComboBox,
+.createScenarioField .sapMMultiComboBox,
+.createScenarioField .sapMStepInput {
+  width: 100% !important;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.createScenarioField .sapMInputBaseContentWrapper,
+.createScenarioField .sapMInputBaseInner,
+.createScenarioField .sapMMultiComboBoxInputContainer {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.createScenarioField .sapMTextArea,
+.createScenarioField textarea.sapMInputBaseInner {
+  width: 100% !important;
+  min-height: 6rem;
+  max-height: 6rem;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.createScenarioInline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.createScenarioActions {
+  width: 100%;
+  min-width: 0;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+.recommendationPanel {
+  max-width: 70rem;
+}
+
+.aiHero {
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
+  border-color: #b8d8f4;
+}
+
+.executivePanel {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  border-color: #b8d8f4;
+}
+
+.predictiveExecutivePanel {
+  background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+  border-color: #b8d8f4;
+}
+
+.recommendationActionsPanel {
+  flex: 0 1 24rem;
+  min-width: 20rem;
+}
+
+.actionButtonStack {
+  width: 100%;
+  gap: 0.65rem;
+}
+
+.actionButtonStack .sapMBtn {
+  width: 100%;
+  max-width: 22rem;
+}
+
+.actionButtonStack .sapMBtnInner {
+  justify-content: flex-start;
+}
+
+.actionHint {
+  color: #4f667a;
+  line-height: 1.4;
+}
+
+.dashboardEmpty {
+  min-height: 16rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.topModelCard {
+  flex: 1 1 24rem;
+}
+
+.heatmapGrid {
+  gap: 0.75rem;
+}
+
+.heatCell {
+  flex: 1 1 12rem;
+  min-width: 12rem;
+  padding: 0.8rem;
+  border: 1px solid #d7e2ea;
+  border-radius: 0.5rem;
+  background: #f9fbfd;
+  gap: 0.45rem;
+}
+
+.miniCard {
+  flex: 1 1 14rem;
+  padding: 0.75rem;
+  border: 1px solid #d7e2ea;
+  border-radius: 0.5rem;
+  background: #f9fbfd;
+  gap: 0.35rem;
+}
+
+.errorPanel {
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #ffd5d5;
+  border-radius: 0.5rem;
+  background: #fff8f8;
+}
+
+.reasonCard {
+  width: 100%;
+  gap: 0.45rem;
+  padding: 0.8rem 0;
+}
+
+.chartPanel {
+  flex: 1 1 22rem;
+  min-height: 18rem;
+}
+
+.overviewStrip {
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.summaryText {
+  line-height: 1.45;
+  color: #223548;
+}
+
+.impactRow,
+.metricRow {
+  width: 100%;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.impactRow .sapMPI {
+  width: 45%;
+}
+
+.chartRow {
+  width: 100%;
+  gap: 0.35rem;
+  padding: 0.45rem 0;
+}
+
+.barTrack {
+  height: 0.55rem;
+  width: 100%;
+  background: #e8eef3;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  min-width: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.riskBar {
+  background: #e76500;
+}
+
+.revenueBar {
+  background: #188918;
+}
+
+.impactBar {
+  background: #0a6ed1;
+}
+
+.dependencyBar {
+  background: #925ace;
+}
+
+.performanceBar {
+  background: #3b6f87;
+}
+
+.sapMListTblCell {
+  vertical-align: middle;
+}
+
+.sapMText,
+.sapMObjStatusText {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .layoutRoot {
+    flex-direction: column;
+  }
+
+  .sideNav {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: 0;
+    border-bottom: 1px solid #d7e2ea;
+  }
+
+  .sideNav .sapMBtn {
+    width: auto;
+  }
+
+  .kpiTile {
+    max-width: none;
+    width: 100%;
+  }
+
+  .contentPane {
+    width: 100%;
+  }
+
+  .toolbarBand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .createScenarioGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .createScenarioWideField {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .contentInner {
+    padding: 0.75rem;
+  }
+
+  .panel.createScenarioPage {
+    padding: 0.85rem;
+    min-width: 0;
+  }
+
+  .createScenarioInline {
+    grid-template-columns: 1fr;
+  }
+
+  .createScenarioActions {
+    justify-content: flex-start;
+  }
+
+  .createScenarioActions .sapMBtn {
+    width: 100%;
+  }
+
+  .recommendationActionsPanel {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .actionButtonStack .sapMBtn {
+    max-width: none;
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": [
+    "app/ml",
+    "scripts"
+  ],
+  "extraPaths": [
+    "."
+  ],
+  "reportMissingImports": true,
+  "reportMissingModuleSource": false
+}

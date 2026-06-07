@@ -1,0 +1,34 @@
+{
+  "sap.app": {
+    "id": "bms",
+    "type": "application",
+    "title": "AI Business Model Simulation Engine",
+    "applicationVersion": { "version": "1.0.0" }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": { "desktop": true, "tablet": true, "phone": true }
+  },
+  "sap.ui5": {
+    "rootView": {
+      "viewName": "bms.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "app"
+    },
+    "dependencies": {
+      "minUI5Version": "1.120.0",
+      "libs": {
+        "sap.m": {},
+        "sap.f": {},
+        "sap.ui.layout": {}
+      }
+    },
+    "resources": {
+      "css": [{ "uri": "css/style.css" }]
+    },
+    "models": {
+      "app": { "type": "sap.ui.model.json.JSONModel" }
+    }
+  }
+}
