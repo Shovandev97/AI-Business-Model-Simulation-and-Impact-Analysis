@@ -1,25 +1,12 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Business Model Simulation Engine</title>
-    <script
-      id="sap-ui-bootstrap"
-      src="https://sdk.openui5.org/resources/sap-ui-core.js"
-      data-sap-ui-theme="sap_horizon"
-      data-sap-ui-libs="sap.m,sap.f,sap.ui.layout,sap.ui.core"
-      data-sap-ui-compat-version="edge"
-      data-sap-ui-async="true"
-      data-sap-ui-resource-roots='{"bms":"./webapp"}'>
-    </script>
-    <script>
-      sap.ui.getCore().attachInit(function () {
-        sap.ui.require(["sap/ui/core/ComponentContainer"], function (ComponentContainer) {
-          new ComponentContainer({ name: "bms", height: "100%" }).placeAt("content");
-        });
-      });
-    </script>
   </head>
-  <body class="sapUiBody" id="content"></body>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

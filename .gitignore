@@ -18,6 +18,7 @@ build/
 coverage/
 .nyc_output/
 *.tsbuildinfo
+app/backend/target/
 
 # Python virtual environments and caches
 .venv/

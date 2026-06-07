@@ -1,3 +1,13 @@
+# Run backend
+/private/tmp/apache-maven-3.9.9/bin/mvn -Dmaven.repo.local=/private/tmp/m2repo -f app/backend/pom.xml spring-boot:run
+
+# Run frontend
+source scripts/use-node.sh
+npm --prefix app/frontend run dev
+
+# Run ML
+npm run dev:ml
+
 # AI-Powered Business Model Simulation & Impact Analysis Engine
 
 Enterprise SAP Fiori-style application for simulating commercial models, predicting downstream Order-to-Cash impact, comparing alternatives, and generating explainable executive recommendations with SAP AI Core or an OpenAI-compatible generative AI endpoint.
@@ -5,10 +15,10 @@ Enterprise SAP Fiori-style application for simulating commercial models, predict
 ## Architecture
 
 ```text
-SAP UI5/Fiori Frontend
+React Frontend
         |
         v
-Node.js Express API  ----->  SAP AI Core / GenAI chat endpoint
+Java Spring Boot API  ----->  SAP AI Core / GenAI chat endpoint
         |
         v
 Local Python FastAPI Predictive Service
@@ -19,10 +29,33 @@ Synthetic historical data + trained scikit-learn model artifact
 
 ## Services
 
-- `app/frontend`: SAP UI5 dashboard, scenario wizard, comparison grid, impact matrix, prediction details, recommendation, audit and settings pages.
-- `app/backend`: Express REST API, validation, impact analysis, comparison scoring, open-source AI integration, JSON persistence and audit trail.
+- `app/frontend`: React dashboard, scenario wizard, comparison grid, impact matrix, prediction details, recommendation, audit and settings pages.
+- `app/backend`: Spring Boot REST API, validation, impact analysis, comparison scoring, open-source AI integration, JSON persistence and audit trail.
 - `app/ml`: FastAPI predictive service, synthetic-data training pipeline, model metadata, inference with confidence and top contributing factors.
 - `scripts/generate_synthetic_data.py`: reproducible enterprise-realistic synthetic historical data generator.
+
+## Java / React Migration
+
+The application has been migrated from Node.js/Express and SAP UI5 to Java Spring Boot and React while preserving the documented API paths, JSON request/response contracts, JSON store shape and local ML integration.
+
+Architecture mapping:
+
+- Express routes/controllers -> `app/backend/src/main/java/com/bms/controller/ScenarioController.java`
+- Express API-key middleware/CORS/error handler -> `filter/ApiKeyFilter.java`, `config/WebConfig.java`, `controller/GlobalExceptionHandler.java`
+- JSON persistence -> `repository/JsonStoreRepository.java`, still using `DATA_STORE_PATH` and the existing `data/store.json` shape
+- Validation -> `service/ScenarioValidator.java`
+- Impact, comparison, dashboard, details, suggestions, recommendation views -> `service/*Service.java`
+- SAP UI5 component/view/controller -> React stateful app in `app/frontend/src/main.jsx`
+- UI5 CSS -> React CSS in `app/frontend/src/styles.css`
+
+Important behavior retained:
+
+- `x-api-key` is required for all endpoints except `GET /api/health`.
+- Existing `/api/*` and `/ai/*` routes remain available.
+- Scenario validation keeps the original required fields and numeric bounds.
+- Impact analysis, comparison ranking, dashboard summaries, audit records and JSON persistence keep the same payload field names.
+- GenAI recommendation failures return the predictive-only `GENAI_UNAVAILABLE` style state instead of fake recommendations.
+- Better-model suggestions are stored with source scenario links and accepted/discarded lifecycle states.
 
 ## Upgrade Highlights
 
@@ -42,6 +75,8 @@ Synthetic historical data + trained scikit-learn model artifact
 
 Prerequisites:
 
+- Java 21+
+- Maven 3.9+
 - Node.js 20+ or the workspace-local `.node` installation
 - Python 3.9+
 - SAP AI Core credentials, or Ollama/LM Studio/vLLM/another OpenAI-compatible chat-completions endpoint
@@ -171,7 +206,7 @@ Sample scenario:
 
 ### Create Scenario Flow
 
-The SAP UI5 Create Scenario page is intentionally manual rather than template-based. Business users can enter scenario basics, commercial model structure, pricing, billing, funding, expected revenue, volume, process complexity, integration count and compliance scope.
+The React Create Scenario page is intentionally manual rather than template-based. Business users can enter scenario basics, commercial model structure, pricing, billing, funding, expected revenue, volume, process complexity, integration count and compliance scope.
 
 Validation runs before submission:
 
@@ -187,9 +222,9 @@ The form supports:
 
 Create Scenario stability notes:
 
-- the hidden UI5 tab container is bound to one stable `activePage` key
+- the React shell is bound to one stable `activePage` key
 - the global scenario selector is hidden while the user is entering a new scenario, so global selected-scenario changes do not overwrite draft form data
-- the draft is initialized once in the app model and is not reset while typing
+- the draft is initialized once in React state and is not reset while typing
 - save/analyze buttons use a page-specific loading flag to avoid remounting or layout flicker
 
 ### Dashboard API
@@ -409,6 +444,6 @@ Backend and structure tests cover impact scoring, dashboard summary/charts, dash
 
 - Local persistence uses JSON for easy hackathon/local execution; the service layer isolates storage so replacing it with PostgreSQL or SAP HANA is straightforward.
 - The generative AI provider is configured through environment variables. If the external AI endpoint is unavailable, the app shows a structured predictive-only status and retry path instead of customer-facing fallback prose.
-- The UI uses UI5 from the public CDN for local convenience.
-- The visible global navigation is the left sidebar. The internal tab container is used only for content switching and its tab header is hidden to avoid duplicate navigation.
+- The UI is bundled with React and Vite; no UI5 CDN bootstrap is required.
+- The visible global navigation is the left sidebar. React renders the active page directly to avoid duplicate navigation.
 - Dashboard visibility can be tested by navigating from Dashboard to Create Scenario, Impact Analysis, Compare Scenarios, AI Recommendation, History and Settings. Dashboard KPI cards and visuals should disappear on every non-dashboard page.
