@@ -150,6 +150,7 @@ def main():
         "seed": args.seed,
         "description": "Synthetic enterprise historical commercial model transformations with O2C outcomes.",
         "targets": ["implementationRisk", "billingComplexity", "revenueImpactPct", "complianceRisk", "delayProbability", "dependencyCount", "operationalEffort", "downstreamIntegrationImpact"],
+        "derived_features_added_at_training": ["revenuePerTransaction", "monthlyContractValue", "integrationComplexityIndex", "complianceDensity", "revenueScale", "transactionVolumeScale", "enterpriseComplexityIndex"],
         "pattern_notes": "Fields are generated from industry, segment, model type, pricing, billing cadence, integrations, process complexity and compliance footprint with realistic weighted relationships and calibrated noise."
     }
     (DATA_DIR / "data_dictionary.json").write_text(json.dumps(dictionary, indent=2))

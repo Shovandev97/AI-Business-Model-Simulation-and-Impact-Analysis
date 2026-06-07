@@ -126,7 +126,7 @@ Generated files:
 
 ## Model Training
 
-`app/ml/src/train.py` trains multi-output regression models using scikit-learn pipelines with one-hot encoding and random forests. It saves:
+`app/ml/src/train.py` trains a stronger tabular prediction pipeline. It adds derived business indicators such as revenue per transaction, monthly contract value, integration-complexity index, compliance density and revenue/volume scale, then compares several scikit-learn regressors with cross-validation before saving the best model. It saves:
 
 - `app/ml/models/business_model_predictor.joblib`
 - `app/ml/models/model_info.json`
@@ -142,7 +142,7 @@ Predicted outputs:
 - operational effort
 - downstream integration impact
 
-Each prediction includes confidence, model version, training metadata and top contributing factors derived from feature importance. The Admin page `Train Predictive Model` action calls `POST /api/train`, regenerates the synthetic historical dataset with 500 additional records by default, retrains the model, and updates `datasetRows`, `trainingRows`, `testRows`, metrics and `trainedAt`.
+Each prediction includes confidence, model version, selected model, training metadata, per-target metrics and top contributing factors. The Admin page `Train Predictive Model` action calls `POST /api/train`, regenerates the synthetic historical dataset with 500 additional records by default, retrains the candidate models, selects the best performer, and updates `datasetRows`, `trainingRows`, `testRows`, metrics and `trainedAt`.
 
 ## API Contract
 

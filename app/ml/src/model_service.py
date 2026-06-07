@@ -7,6 +7,8 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from .train import add_derived_features
+
 MODEL_DIR = Path(__file__).resolve().parents[1] / "models"
 MODEL_FILE = MODEL_DIR / "business_model_predictor.joblib"
 INFO_FILE = MODEL_DIR / "model_info.json"
@@ -51,7 +53,8 @@ class ModelService:
         features = self.artifact["categorical"] + self.artifact["numeric"]
         row = scenario.copy()
         row["complianceRegionCount"] = len(row.get("complianceRegions", []))
-        frame = pd.DataFrame([{key: row.get(key) for key in features}])
+        frame = add_derived_features(pd.DataFrame([row]))
+        frame = frame.reindex(columns=features)
         raw = self.artifact["pipeline"].predict(frame)[0]
         targets = self.artifact["targets"]
         predictions = {target: round(float(value), 2) for target, value in zip(targets, raw)}
@@ -70,27 +73,106 @@ class ModelService:
                 "trainingRows": self.info["trainingRows"],
                 "testRows": self.info.get("testRows"),
                 "metrics": self.info["metrics"],
+                "perTargetMetrics": self.info.get("perTargetMetrics", {}),
+                "selectedModel": self.info.get("selectedModel", "random_forest"),
+                "derivedFeatures": self.info.get("derivedFeatures", self.artifact.get("derived_numeric", [])),
             },
         }
 
     def _confidence(self, frame, raw_prediction):
-        model = self.artifact["pipeline"].named_steps["model"]
-        transformed = self.artifact["pipeline"].named_steps["preprocessor"].transform(frame)
-        tree_predictions = np.array([tree.predict(transformed)[0] for tree in model.estimators_])
-        dispersion = float(np.mean(np.std(tree_predictions, axis=0)))
-        confidence = max(0.52, min(0.94, 0.92 - dispersion / 85))
+        base = self._metric_confidence()
+        dispersion_penalty = self._ensemble_dispersion_penalty(frame)
+        distribution_penalty = self._distribution_penalty(frame)
+        confidence = max(0.45, min(0.96, base - dispersion_penalty - distribution_penalty))
         return round(confidence, 2)
+
+    def _metric_confidence(self):
+        r2 = float(self.info.get("metrics", {}).get("r2", 0.75))
+        return 0.56 + max(0, min(1, r2)) * 0.38
+
+    def _ensemble_dispersion_penalty(self, frame):
+        model = self.artifact["pipeline"].named_steps["model"]
+        if not hasattr(model, "estimators_"):
+            return 0
+        transformed = self.artifact["pipeline"].named_steps["preprocessor"].transform(frame)
+        predictions = []
+        for estimator in model.estimators_:
+            prediction = estimator.predict(transformed)[0]
+            if np.ndim(prediction) == 0:
+                return 0
+            predictions.append(prediction)
+        if not predictions:
+            return 0
+        dispersion = float(np.mean(np.std(np.array(predictions), axis=0)))
+        return min(0.18, dispersion / 100)
+
+    def _distribution_penalty(self, frame):
+        profile = self.artifact.get("training_profile", {})
+        penalty = 0
+        numeric_ranges = profile.get("numericRanges", {})
+        for column, bounds in numeric_ranges.items():
+            value = frame.iloc[0].get(column)
+            if value is None or pd.isna(value):
+                penalty += 0.02
+                continue
+            if value < bounds.get("min", value) or value > bounds.get("max", value):
+                penalty += 0.03
+        categories = profile.get("categories", {})
+        for column, values in categories.items():
+            value = str(frame.iloc[0].get(column))
+            if value and value not in values:
+                penalty += 0.03
+        return min(0.18, penalty)
 
     def _top_factors(self, frame):
         preprocessor = self.artifact["pipeline"].named_steps["preprocessor"]
         model = self.artifact["pipeline"].named_steps["model"]
+        importances = self._feature_importances(model)
+        if importances is None:
+            return self._domain_factors(frame)
         names = preprocessor.get_feature_names_out()
-        importances = model.feature_importances_
         pairs = sorted(zip(names, importances), key=lambda item: item[1], reverse=True)[:6]
         readable = []
         for name, importance in pairs:
-            label = name.replace("cat__", "").replace("num__", "").replace("_", " = ")
+            label = self._readable_feature_name(name)
             readable.append({"factor": label, "importance": round(float(importance), 4)})
         return readable
+
+    def _feature_importances(self, model):
+        if hasattr(model, "feature_importances_"):
+            return model.feature_importances_
+        estimators = getattr(model, "estimators_", [])
+        nested = [estimator.feature_importances_ for estimator in estimators if hasattr(estimator, "feature_importances_")]
+        if not nested:
+            return None
+        return np.mean(np.array(nested), axis=0)
+
+    def _readable_feature_name(self, name):
+        clean = name.replace("cat__", "").replace("num__", "")
+        for field in self.artifact["categorical"]:
+            prefix = f"{field}_"
+            if clean.startswith(prefix):
+                return f"{self._labelize(field)}: {clean[len(prefix):]}"
+        return self._labelize(clean)
+
+    def _labelize(self, value):
+        text = "".join([f" {char}" if char.isupper() else char for char in value]).strip()
+        return text.replace("_", " ").title()
+
+    def _domain_factors(self, frame):
+        row = frame.iloc[0]
+        candidates = [
+            ("Enterprise Complexity Index", row.get("enterpriseComplexityIndex", 0)),
+            ("Integration Count", row.get("integrationCount", 0) * 5),
+            ("Process Complexity", row.get("processComplexity", 0) * 10),
+            ("Compliance Region Count", row.get("complianceRegionCount", 0) * 12),
+            ("Revenue Scale", row.get("revenueScale", 0) * 10),
+            ("Transaction Volume Scale", row.get("transactionVolumeScale", 0) * 8),
+        ]
+        total = sum(max(0, float(value or 0)) for _, value in candidates) or 1
+        return [
+            {"factor": label, "importance": round(max(0, float(value or 0)) / total, 4)}
+            for label, value in sorted(candidates, key=lambda item: item[1], reverse=True)[:6]
+        ]
 
 service = ModelService()

@@ -21,3 +21,5 @@ def test_prediction_contract():
     assert "predictions" in result
     assert "implementationRisk" in result["predictions"]
     assert result["confidence"] > 0
+    assert "selectedModel" in result["trainingMetadata"]
+    assert "perTargetMetrics" in result["trainingMetadata"]
