@@ -153,6 +153,7 @@ Backend:
 - `POST /api/scenarios`
 - `GET /api/scenarios`
 - `GET /api/scenarios/:id`
+- `PATCH /api/scenarios/:id`
 - `POST /api/scenarios/:id/analyze`
 - `POST /api/scenarios/compare`
 - `POST /api/scenarios/compare/details`

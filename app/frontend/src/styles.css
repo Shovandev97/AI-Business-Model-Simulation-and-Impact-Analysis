@@ -261,6 +261,7 @@ textarea { min-height: 6.5rem; resize: vertical; }
 }
 .widePanel { flex: 1 1 42rem; min-width: 0; }
 .chartPanel { flex: 1 1 22rem; min-height: 15rem; }
+.denseChartPanel { min-height: 0; }
 .executivePanel, .aiHero {
   background:
     linear-gradient(135deg, rgba(255,255,255,0.95), rgba(244,249,255,0.95)),
@@ -693,7 +694,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .compareTable .fitCol { width: 9.5rem; }
 .compareTable .riskCol { width: 7rem; }
 .compareTable .metricCol { width: 8.5rem; }
-.compareTable .actionCol { width: 4rem; }
+.compareTable .actionCol { width: 6.2rem; }
 .compareTable .sortButton {
   justify-content: flex-start;
 }
@@ -819,6 +820,21 @@ tbody tr:last-child td { border-bottom: 0; }
   border-color: #f0caca;
   box-shadow: none;
 }
+.iconButton {
+  min-width: 2.25rem;
+  width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  color: #0a4f94;
+  background: #f3f8ff;
+  border-color: #c9dff6;
+  box-shadow: none;
+}
+.rowActions {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
 .compareEmpty {
   min-height: 13rem;
   display: grid;
@@ -861,6 +877,34 @@ tbody tr:last-child td { border-bottom: 0; }
   border-color: #edcf9d;
 }
 
+.chartListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+.chartListHeader h2 { margin: 0; }
+.chartListHeader span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.7rem;
+  padding: 0.18rem 0.52rem;
+  border-radius: 999px;
+  color: #0a4f94;
+  background: #eaf4ff;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+.chartListBody {
+  display: grid;
+  gap: 0.4rem;
+}
+.denseChartPanel .chartListBody {
+  max-height: 26rem;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
 .chartRow { padding: 0.55rem 0; }
 .chartRow > div:first-child, .listRow {
   display: flex;
@@ -870,6 +914,51 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 .chartRow span, .listRow span { color: var(--muted); }
 .chartRow strong { color: var(--ink); }
+.chartRow.compact {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.58rem;
+  border: 1px solid #edf2f6;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+}
+.chartRow.compact:hover {
+  border-color: #cddce9;
+  background: #f8fbfe;
+}
+.chartRank {
+  display: inline-grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  color: #47647d;
+  background: #eef4f8;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+.chartLabel { min-width: 0; }
+.chartLabel strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: #243a50;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chartRow.compact b {
+  color: #101827;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+.chartRow.compact .barTrack {
+  height: 0.45rem;
+  margin-top: 0.36rem;
+}
 .visualPanel {
   min-height: 0;
   overflow: visible;

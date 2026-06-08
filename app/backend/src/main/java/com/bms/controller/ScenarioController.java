@@ -72,6 +72,25 @@ public class ScenarioController {
     return require(repository.read(), "scenarios", "id", id, "Scenario not found.");
   }
 
+  @PatchMapping("/api/scenarios/{id}")
+  public Map<String, Object> updateScenario(@PathVariable String id, @RequestBody Map<String, Object> body) {
+    String name = Json.str(body == null ? null : body.get("name")).trim();
+    if (name.isBlank()) throw new ApiException(HttpStatus.BAD_REQUEST, "REQUEST_ERROR", "Scenario name is required.");
+    if (name.length() > 160) throw new ApiException(HttpStatus.BAD_REQUEST, "REQUEST_ERROR", "Scenario name must be 160 characters or less.");
+    String now = Instant.now().toString();
+    @SuppressWarnings("unchecked")
+    Map<String, Object> updated = (Map<String, Object>) repository.mutate(state -> {
+      Map<String, Object> scenario = require(state, "scenarios", "id", id, "Scenario not found.");
+      String previousName = Json.str(scenario.get("name"));
+      scenario.put("name", name);
+      scenario.put("updatedAt", now);
+      return Json.obj("scenario", scenario, "previousName", previousName);
+    });
+    Map<String, Object> scenario = Json.map(updated.get("scenario"));
+    auditService.audit("SCENARIO_RENAMED", Json.obj("request", Json.obj("scenarioId", id, "name", name), "response", Json.obj("scenarioId", id, "previousName", updated.get("previousName"), "name", scenario.get("name"))));
+    return scenario;
+  }
+
   @DeleteMapping("/api/scenarios/{id}")
   public Map<String, Object> deleteScenario(@PathVariable String id) {
     @SuppressWarnings("unchecked")
