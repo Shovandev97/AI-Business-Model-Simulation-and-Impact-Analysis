@@ -1,8 +1,7 @@
 # Run backend
-/private/tmp/apache-maven-3.9.9/bin/mvn -Dmaven.repo.local=/private/tmp/m2repo -f app/backend/pom.xml spring-boot:run
+mvn -f app/backend/pom.xml spring-boot:run
 
 # Run frontend
-source scripts/use-node.sh
 npm --prefix app/frontend run dev
 
 # Run ML
@@ -77,12 +76,11 @@ Prerequisites:
 
 - Java 21+
 - Maven 3.9+
-- Node.js 20+ or the workspace-local `.node` installation
+- Node.js 20+
 - Python 3.9+
 - SAP AI Core credentials, or Ollama/LM Studio/vLLM/another OpenAI-compatible chat-completions endpoint
 
 ```bash
-source scripts/use-node.sh
 npm run install:all
 python3 -m venv .venv
 source .venv/bin/activate

@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import {
   Activity, ArrowDownRight, ArrowUpRight, Award, BarChart3, Bot, Check, Clock3,
   ClipboardList, DollarSign, Gauge, GitCompare, History, Layers3, Minus,
-  Network, RefreshCw, Save, Search, Settings, ShieldAlert, Sparkles, Trash2,
+  Network, Pencil, RefreshCw, Save, Search, Settings, ShieldAlert, Sparkles, Trash2,
   TrendingDown, TrendingUp, X
 } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -40,6 +40,8 @@ function App() {
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState({});
   const [toast, setToast] = useState('');
+  const [renameDraft, setRenameDraft] = useState('');
+  const [renamingSelected, setRenamingSelected] = useState(false);
   const selectedScenario = scenarios.find((item) => item.id === selectedScenarioId) || null;
 
   useEffect(() => { loadAll(); loadDashboard(); }, []);
@@ -153,6 +155,38 @@ function App() {
     }
   }
 
+  async function renameScenario(id, name) {
+    const nextName = String(name || '').trim();
+    if (nextName.length < 3 || nextName.length > 120) {
+      window.alert('Scenario name must be between 3 and 120 characters.');
+      return null;
+    }
+    try {
+      setLoadingFlag('renameScenario', true);
+      const updated = await api(`/api/scenarios/${id}`, { method: 'PATCH', body: JSON.stringify({ name: nextName }) });
+      setScenarios((rows) => rows.map((item) => item.id === id ? { ...item, ...updated } : item));
+      setComparison((rows) => rows.map((row) => row.scenarioId === id ? { ...row, name: updated.name } : row));
+      setAnalysis((current) => current?.scenario?.id === id ? { ...current, scenario: { ...current.scenario, name: updated.name } } : current);
+      setImpactDetails((current) => current?.scenarioOverview && (current.scenarioOverview.id === id || id === selectedScenarioId) ? { ...current, scenarioOverview: { ...current.scenarioOverview, name: updated.name } } : current);
+      setRecommendationView((current) => current?.originalScenario?.id === id ? { ...current, originalScenario: { ...current.originalScenario, name: updated.name } } : current);
+      await loadDashboard();
+      show('Scenario name updated');
+      return updated;
+    } catch (error) {
+      window.alert(error.message);
+      return null;
+    } finally {
+      setLoadingFlag('renameScenario', false);
+    }
+  }
+
+  async function saveSelectedScenarioName(event) {
+    event.preventDefault();
+    if (!selectedScenarioId) return;
+    const updated = await renameScenario(selectedScenarioId, renameDraft);
+    if (updated) setRenamingSelected(false);
+  }
+
   async function suggestBetterModel() {
     if (!selectedScenarioId) return show('Select a scenario first');
     if (!analysis && !recommendationView?.originalPrediction) return show('Run impact analysis first');
@@ -258,12 +292,12 @@ function App() {
         <main className="contentPane">
           <section className="toolbarBand">
             <div><span className="eyebrow">Enterprise planning cockpit</span><h1>Commercial Model Simulation Cockpit</h1><p>Assess revenue, risk, compliance and downstream process impact before model rollout.</p></div>
-            {activePage !== 'create' && <div className="toolbarActions"><select className="form-select" value={selectedScenarioId} onChange={(e) => setSelectedScenarioId(e.target.value)}>{scenarios.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><button className="btn btn-light" onClick={() => { loadAll(); loadDashboard(); }}><RefreshCw size={16}/>Refresh</button></div>}
+            {activePage !== 'create' && <div className="toolbarActions"><select className="form-select" value={selectedScenarioId} onChange={(e) => { setSelectedScenarioId(e.target.value); setRenamingSelected(false); }}>{scenarios.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>{selectedScenario && !renamingSelected && <button className="btn btn-light iconBtn" onClick={() => { setRenameDraft(selectedScenario.name || ''); setRenamingSelected(true); }} title="Rename selected scenario"><Pencil size={16}/></button>}{renamingSelected && <form className="renameInlineForm" onSubmit={saveSelectedScenarioName}><input className="form-control" value={renameDraft} onChange={(event) => setRenameDraft(event.target.value)} autoFocus/><button className="renameSaveButton" disabled={loading.renameScenario}><Check size={15}/>Save</button><button type="button" className="renameCancelButton" onClick={() => setRenamingSelected(false)} title="Cancel rename"><X size={15}/></button></form>}<button className="btn btn-light" onClick={() => { loadAll(); loadDashboard(); }}><RefreshCw size={16}/>Refresh</button></div>}
           </section>
           {activePage === 'dashboard' && <DashboardPage dashboard={dashboard} setActivePage={setActivePage}/>}
           {activePage === 'create' && <CreatePage draft={draft} setDraft={setDraft} referenceData={referenceData} formError={formError} saveScenario={saveScenario} loading={loading}/>}
           {activePage === 'impact' && <ImpactPage impactDetails={impactDetails} scenarioCharts={scenarioCharts} analysis={analysis} suggestion={suggestion} suggestionError={suggestionError} loading={loading} analyze={() => analyzeScenario()} suggestBetterModel={suggestBetterModel} useSuggestedModel={useSuggestedModel} compareSuggestion={compareSuggestion} discardSuggestion={discardSuggestion}/>}
-          {activePage === 'compare' && <ComparePage comparison={comparison} comparisonDetails={comparisonDetails} compareAll={compareAll} deleteScenario={deleteScenario} loading={loading}/>}
+          {activePage === 'compare' && <ComparePage comparison={comparison} comparisonDetails={comparisonDetails} compareAll={compareAll} deleteScenario={deleteScenario} renameScenario={renameScenario} loading={loading}/>}
           {activePage === 'recommendation' && <RecommendationPage recommendationView={recommendationView} recommendationError={recommendationError} loading={loading} suggestBetterModel={suggestBetterModel} regenerateRecommendation={regenerateRecommendation} useSuggestedModel={useSuggestedModel} compareSuggestion={compareSuggestion} discardSuggestion={discardSuggestion} setActivePage={setActivePage} suggestionError={suggestionError}/>}
           {activePage === 'audit' && <AuditPage audit={audit}/>}
           {activePage === 'admin' && <AdminPage health={health} loadAll={loadAll} trainModel={trainModel}/>}
@@ -304,7 +338,7 @@ function ImpactPage({ impactDetails, scenarioCharts, analysis, suggestion, sugge
   </div>;
 }
 
-function ComparePage({ comparison, comparisonDetails, compareAll, deleteScenario, loading }) {
+function ComparePage({ comparison, comparisonDetails, compareAll, deleteScenario, renameScenario, loading }) {
   const best = comparison[0] || {};
   const riskValues = comparison.map((row) => Number(row.risk)).filter(Number.isFinite);
   const revenueValues = comparison.map((row) => Number(row.revenueImpact)).filter(Number.isFinite);
@@ -318,8 +352,8 @@ function ComparePage({ comparison, comparisonDetails, compareAll, deleteScenario
     <section className="panel compareHero"><div className="panelHeader"><div><span className="eyebrow">Decision intelligence</span><h2>Scenario Comparison</h2><p>{comparisonDetails?.bestFitRecommendation || 'Compare analyzed scenarios to identify the strongest commercial model trade-off.'}</p></div><button className="primary" onClick={compareAll} disabled={loading.comparison}><GitCompare size={16}/>{loading.comparison ? 'Comparing...' : 'Compare All Scenarios'}</button></div></section>
     <div className="compareKpiGrid">{stats.map(([label, value, Icon, tone]) => <div className={`compareKpi ${tone}`} key={label}><div><span>{label}</span><strong>{formatCell(value)}</strong></div><Icon size={20}/></div>)}</div>
     {comparisonDetails?.tradeOffExplanation && <div className="message compareMessage">{comparisonDetails.tradeOffExplanation}</div>}
-    <section className="panel compareTablePanel"><div className="panelHeader tableTitle"><div><h2>Ranked Scenario Matrix</h2><p>Recommendation score balances revenue upside, implementation effort, compliance exposure and downstream complexity.</p></div><span className="badge">{comparison.length} ranked</span></div><CompareScenarioTable rows={comparison} deleteScenario={deleteScenario} loading={loading}/></section>
-    <div className="sectionGrid chartDeck"><ChartList title="Revenue Impact Comparison" rows={comparisonDetails?.charts?.revenueImpactComparison || []} label="label" value="value"/><ChartList title="Risk Score Comparison" rows={comparisonDetails?.charts?.riskComparison || []} label="label" value="value"/><ChartList title="Dependency Count Comparison" rows={comparisonDetails?.charts?.dependencyCountComparison || []} label="label" value="value"/></div>
+    <section className="panel compareTablePanel"><div className="panelHeader tableTitle"><div><h2>Ranked Scenario Matrix</h2><p>Recommendation score balances revenue upside, implementation effort, compliance exposure and downstream complexity.</p></div><span className="badge">{comparison.length} ranked</span></div><CompareScenarioTable rows={comparison} deleteScenario={deleteScenario} renameScenario={renameScenario} loading={loading}/></section>
+    <div className="sectionGrid chartDeck compactChartDeck"><CompactComparisonChart title="Revenue Impact Comparison" rows={comparisonDetails?.charts?.revenueImpactComparison || []} label="label" value="value" suffix="%" tone="revenue"/><CompactComparisonChart title="Risk Score Comparison" rows={comparisonDetails?.charts?.riskComparison || []} label="label" value="value" tone="risk"/><CompactComparisonChart title="Dependency Count Comparison" rows={comparisonDetails?.charts?.dependencyCountComparison || []} label="label" value="value" tone="dependency"/></div>
   </div>;
 }
 
@@ -343,6 +377,14 @@ function AuditPage({ audit }) { return <section className="panel"><h2>Audit Trai
 function AdminPage({ health, loadAll, trainModel }) { return <section className="panel"><h2>Service Health</h2><p>Status: {health.status}</p><p>AI provider: {health.aiProvider}</p><p>AI model: {health.aiModel}</p><p>AI configured: {String(health.aiConfigured)}</p><p>ML model: {health.ml?.modelVersion}</p><p>Dataset rows: {health.ml?.datasetRows}</p><div className="actions"><button onClick={loadAll}>Check Health</button><button className="primary" onClick={trainModel}>Train Predictive Model</button></div></section>; }
 
 function ChartList({ title, rows = [], label, value }) { return <section className="panel chartPanel"><h2>{title}</h2>{rows.length === 0 && <p>No data yet.</p>}{rows.map((row, index) => <div className="chartRow" key={row[label] || index}><div><span>{row[label]}</span><strong>{row[value]}</strong></div><div className="barTrack"><div className="barFill impactBar" style={{ width: pctWidth(row[value]) }}/></div></div>)}</section>; }
+function CompactComparisonChart({ title, rows = [], label, value, suffix = '', tone = 'neutral' }) {
+  const values = rows.map((row) => Number(row[value])).filter(Number.isFinite);
+  const max = Math.max(...values.map(Math.abs), 1);
+  const average = values.length ? values.reduce((sum, item) => sum + item, 0) / values.length : 0;
+  const minimum = values.length ? Math.min(...values) : 0;
+  const maximum = values.length ? Math.max(...values) : 0;
+  return <section className={`panel compactCompareChart ${tone}`}><div className="compactChartHeader"><div><h2>{title}</h2><p>{rows.length} scenarios shown in a compact scroll view.</p></div><span className="badge">{rows.length}</span></div>{rows.length === 0 ? <p>No data yet.</p> : <><div className="compactChartStats"><span>Avg <strong>{formatCell(average)}{suffix}</strong></span><span>Min <strong>{formatCell(minimum)}{suffix}</strong></span><span>Max <strong>{formatCell(maximum)}{suffix}</strong></span></div><div className="compactChartList">{rows.map((row, index) => { const amount = Number(row[value]) || 0; return <div className="compactChartRow" key={row[label] || index} title={`${row[label]}: ${formatCell(amount)}${suffix}`}><span>{index + 1}</span><strong>{row[label]}</strong><em>{formatCell(amount)}{suffix}</em><i><b style={{ width: `${Math.max(4, Math.min(100, Math.abs(amount) / max * 100))}%` }}/></i></div>; })}</div></>}</section>;
+}
 function DonutChart({ title, rows = [], label, value }) {
   const total = rows.reduce((sum, row) => sum + Math.max(0, Number(row[value]) || 0), 0);
   const colors = ['#1b63d8', '#087f8c', '#1f7a4d', '#b86100', '#6656c7', '#bf3b3b'];
@@ -397,9 +439,11 @@ function ScoreComparisonBars({ rows = [] }) {
 function ProgressMetric({ label, value }) {
   return <div className="progressMetric">{label && <span>{label}</span>}<div className="progressTrack"><i style={{ width: pctWidth(value) }}/></div><strong>{formatCell(value)}</strong></div>;
 }
-function CompareScenarioTable({ rows = [], deleteScenario, loading }) {
+function CompareScenarioTable({ rows = [], deleteScenario, renameScenario, loading }) {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState({ key: 'rank', direction: 'asc' });
+  const [editingId, setEditingId] = useState('');
+  const [nameDraft, setNameDraft] = useState('');
   const visibleRows = useMemo(() => sortRows(filterRows(rows, query), sort), [rows, query, sort]);
   const headers = [
     ['rank', 'Rank'], ['name', 'Scenario'], ['recommendationScore', 'Fit'], ['risk', 'Risk'],
@@ -409,7 +453,10 @@ function CompareScenarioTable({ rows = [], deleteScenario, loading }) {
   if (!rows.length) return <div className="compareEmpty"><Search size={22}/><strong>No comparison yet</strong><span>Run Compare All Scenarios to generate the ranked decision matrix.</span></div>;
   return <div className="compareDataGrid">
     <div className="tableControls"><div><strong>{visibleRows.length}</strong><span> of {rows.length} scenarios</span></div><div className="input-group input-group-sm tableSearch"><span className="input-group-text"><Search size={14}/></span><input className="form-control" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filter scenarios, models, scores"/></div></div>
-    <div className="compareTableWrap table-responsive"><table className="table table-hover align-middle mb-0 compareTable"><colgroup><col className="rankCol"/><col className="scenarioCol"/><col className="fitCol"/><col className="riskCol"/><col className="metricCol"/><col className="metricCol"/><col className="metricCol"/><col className="metricCol"/><col className="metricCol"/><col className="actionCol"/></colgroup><thead className="table-light"><tr>{headers.map(([key, label]) => <th key={key} aria-sort={sort.key === key ? sort.direction : 'none'}><button className="sortButton" onClick={() => setSort(nextSort(sort, key))}>{label}<span>{sortIndicator(sort, key)}</span></button></th>)}<th className="actionColumn"></th></tr></thead><tbody>{visibleRows.map((row) => <tr className={Number(row.rank) === 1 ? 'highlightWinner' : ''} key={row.scenarioId || row.name}><td data-label="Rank"><span className={`rankBadge ${Number(row.rank) === 1 ? 'winner' : ''}`}>#{row.rank}</span></td><td data-label="Scenario"><div className="scenarioCell"><strong title={row.name}>{row.name}</strong><span title={row.businessModelType}>{row.businessModelType}</span></div></td><td data-label="Fit"><ScoreMeter value={row.recommendationScore}/></td><td data-label="Risk"><RiskBadge value={row.risk}/></td><td data-label="Revenue"><MetricWithIcon value={row.revenueImpact} icon={TrendingUp} suffix="%"/></td><td data-label="Effort"><MetricWithIcon value={row.implementationEffort} icon={Gauge}/></td><td data-label="Compliance"><MetricWithIcon value={row.compliance} icon={ShieldAlert}/></td><td data-label="Delay"><MetricWithIcon value={row.delayProbability} icon={Clock3} suffix="%"/></td><td data-label="Deps"><MetricWithIcon value={row.dependencyCount} icon={Network}/></td><td data-label="Action"><button className="btn btn-sm btn-outline-danger iconDanger" onClick={() => deleteScenario(row.scenarioId, row.name)} disabled={loading.deleteScenario} title="Delete scenario"><Trash2 size={16}/></button></td></tr>)}</tbody></table></div>
+    <div className="compareTableWrap table-responsive"><table className="table table-hover align-middle mb-0 compareTable"><colgroup><col className="rankCol"/><col className="scenarioCol"/><col className="fitCol"/><col className="riskCol"/><col className="metricCol"/><col className="metricCol"/><col className="metricCol"/><col className="metricCol"/><col className="metricCol"/><col className="actionCol"/></colgroup><thead className="table-light"><tr>{headers.map(([key, label]) => <th key={key} aria-sort={sort.key === key ? sort.direction : 'none'}><button className="sortButton" onClick={() => setSort(nextSort(sort, key))}>{label}<span>{sortIndicator(sort, key)}</span></button></th>)}<th className="actionColumn"></th></tr></thead><tbody>{visibleRows.map((row) => {
+      const editing = editingId === row.scenarioId;
+      return <tr className={Number(row.rank) === 1 ? 'highlightWinner' : ''} key={row.scenarioId || row.name}><td data-label="Rank"><span className={`rankBadge ${Number(row.rank) === 1 ? 'winner' : ''}`}>#{row.rank}</span></td><td data-label="Scenario">{editing ? <form className="scenarioNameEditor" onSubmit={async (event) => { event.preventDefault(); const updated = await renameScenario(row.scenarioId, nameDraft); if (updated) setEditingId(''); }}><input className="form-control form-control-sm" value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} autoFocus/><button className="renameSaveButton compact" disabled={loading.renameScenario} title="Save scenario name"><Check size={14}/><span>Save</span></button><button type="button" className="renameCancelButton compact" onClick={() => setEditingId('')} title="Cancel rename"><X size={14}/></button></form> : <div className="scenarioCell"><strong title={row.name}>{row.name}</strong><span title={row.businessModelType}>{row.businessModelType}</span></div>}</td><td data-label="Fit"><ScoreMeter value={row.recommendationScore}/></td><td data-label="Risk"><RiskBadge value={row.risk}/></td><td data-label="Revenue"><MetricWithIcon value={row.revenueImpact} icon={TrendingUp} suffix="%"/></td><td data-label="Effort"><MetricWithIcon value={row.implementationEffort} icon={Gauge}/></td><td data-label="Compliance"><MetricWithIcon value={row.compliance} icon={ShieldAlert}/></td><td data-label="Delay"><MetricWithIcon value={row.delayProbability} icon={Clock3} suffix="%"/></td><td data-label="Deps"><MetricWithIcon value={row.dependencyCount} icon={Network}/></td><td data-label="Action"><div className="rowActions"><button className="btn btn-sm btn-light iconBtn" onClick={() => { setEditingId(row.scenarioId); setNameDraft(row.name || ''); }} disabled={loading.renameScenario} title="Rename scenario"><Pencil size={15}/></button><button className="btn btn-sm btn-outline-danger iconDanger" onClick={() => deleteScenario(row.scenarioId, row.name)} disabled={loading.deleteScenario} title="Delete scenario"><Trash2 size={16}/></button></div></td></tr>;
+    })}</tbody></table></div>
     {visibleRows.length === 0 && <div className="noData"><Search size={18}/><strong>No matching scenarios</strong><span>Adjust the table filter to see more rows.</span></div>}
   </div>;
 }
