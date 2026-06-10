@@ -208,6 +208,64 @@ button.btn { text-decoration: none; }
   position: relative;
   z-index: 1;
 }
+.toolbarActions .form-select {
+  width: min(28rem, 100%);
+}
+.iconBtn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.35rem;
+  width: 2.35rem;
+  min-height: 2.35rem;
+  padding: 0;
+}
+.renameInlineForm {
+  display: grid;
+  grid-template-columns: minmax(13rem, 22rem) auto auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+.renameInlineForm .form-control {
+  min-height: 2.35rem;
+}
+.renameSaveButton,
+.renameCancelButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.35rem;
+  border-radius: var(--radius);
+  font-weight: 800;
+  box-shadow: none;
+}
+.renameSaveButton {
+  min-width: 5.4rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand) 0%, #0f78b8 100%);
+  border-color: transparent;
+}
+.renameSaveButton:hover:not(:disabled) {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--brand-strong) 0%, #0b668f 100%);
+}
+.renameSaveButton:disabled {
+  color: #fff;
+  background: #7da9e8;
+  border-color: #7da9e8;
+}
+.renameCancelButton {
+  min-width: 2.35rem;
+  width: 2.35rem;
+  color: #172334;
+  background: #fff;
+  border-color: #d7e1ea;
+}
+.renameCancelButton:hover:not(:disabled) {
+  color: #111827;
+  background: #f6f9fc;
+}
 select, input, textarea {
   width: 100%;
   min-width: 0;
@@ -693,7 +751,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .compareTable .fitCol { width: 9.5rem; }
 .compareTable .riskCol { width: 7rem; }
 .compareTable .metricCol { width: 8.5rem; }
-.compareTable .actionCol { width: 4rem; }
+.compareTable .actionCol { width: 6.5rem; }
 .compareTable .sortButton {
   justify-content: flex-start;
 }
@@ -710,7 +768,7 @@ tbody tr:last-child td { border-bottom: 0; }
   background: #f5f9fd;
 }
 .compareTable .highlightWinner td { background: #fbfefc; }
-.compareTable .actionColumn { width: 3.4rem; }
+.compareTable .actionColumn { width: 6.5rem; }
 .rankBadge {
   display: inline-grid;
   place-items: center;
@@ -818,6 +876,48 @@ tbody tr:last-child td { border-bottom: 0; }
   background: #fff5f5;
   border-color: #f0caca;
   box-shadow: none;
+}
+.rowActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+.rowActions .iconBtn {
+  min-width: 2.15rem;
+  width: 2.15rem;
+  min-height: 2.15rem;
+  padding: 0;
+  box-shadow: none;
+}
+.scenarioNameEditor {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto auto;
+  gap: 0.38rem;
+  align-items: center;
+}
+.scenarioNameEditor .form-control {
+  min-height: 2.15rem;
+}
+.scenarioNameEditor .renameSaveButton.compact,
+.scenarioNameEditor .renameCancelButton.compact {
+  min-height: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
+}
+.scenarioNameEditor .renameSaveButton.compact {
+  width: 2.35rem;
+  min-width: 2.35rem;
+}
+.scenarioNameEditor .renameSaveButton.compact span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.scenarioNameEditor .renameCancelButton.compact {
+  width: 2.15rem;
+  min-width: 2.15rem;
 }
 .compareEmpty {
   min-height: 13rem;
@@ -1132,6 +1232,118 @@ tbody tr:last-child td { border-bottom: 0; }
   border-radius: 999px;
 }
 .impactBar { background: linear-gradient(90deg, var(--brand), var(--teal)); }
+.compactChartDeck {
+  align-items: stretch;
+}
+.compactCompareChart {
+  flex: 1 1 22rem;
+  min-width: 18rem;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.compactChartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem 0.75rem;
+  border-bottom: 1px solid #e4ebf2;
+}
+.compactChartHeader h2 {
+  margin-bottom: 0.2rem;
+}
+.compactChartHeader p {
+  font-size: 0.86rem;
+}
+.compactChartStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  padding: 0.75rem 1rem;
+  background: #f8fbfd;
+  border-bottom: 1px solid #e7eef5;
+}
+.compactChartStats span {
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid #e2eaf2;
+  border-radius: var(--radius);
+  color: var(--muted);
+  background: #fff;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+.compactChartStats strong {
+  display: block;
+  margin-top: 0.14rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+.compactChartList {
+  max-height: 18rem;
+  overflow: auto;
+  padding: 0.65rem;
+}
+.compactChartRow {
+  display: grid;
+  grid-template-columns: 1.65rem minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 0.22rem 0.55rem;
+  align-items: center;
+  padding: 0.55rem 0.58rem;
+  border-radius: var(--radius);
+}
+.compactChartRow + .compactChartRow {
+  margin-top: 0.18rem;
+}
+.compactChartRow:hover {
+  background: #f6f9fc;
+}
+.compactChartRow > span {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  color: #557088;
+  background: #eef4f8;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+.compactChartRow strong {
+  min-width: 0;
+  color: #17324d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+.compactChartRow em {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.compactChartRow i {
+  grid-column: 2 / 4;
+  display: block;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: #e8eef4;
+  overflow: hidden;
+}
+.compactChartRow b {
+  display: block;
+  height: 100%;
+  min-width: 0.24rem;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand), var(--teal));
+}
+.compactCompareChart.risk .compactChartRow b { background: linear-gradient(90deg, var(--amber), var(--red)); }
+.compactCompareChart.dependency .compactChartRow b { background: linear-gradient(90deg, #6656c7, var(--brand)); }
 .heatmapGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
@@ -1543,6 +1755,7 @@ tbody tr:last-child td { border-bottom: 0; }
   .metricStrip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .compareTablePanel .tableTitle { align-items: flex-start; }
   .dataGridTop, .tableControls { flex-direction: column; align-items: stretch; }
+  .renameInlineForm { width: 100%; grid-template-columns: minmax(0, 1fr) auto auto; }
   .tableSearch { width: 100%; }
   .donutLayout { grid-template-columns: 1fr; justify-items: center; }
   .chartLegend { width: 100%; }
@@ -1560,6 +1773,8 @@ tbody tr:last-child td { border-bottom: 0; }
   .toolbarBand { padding: 1rem; }
   .kpiRow { grid-template-columns: 1fr; }
   .actions button, .toolbarActions, .toolbarActions button { width: 100%; }
+  .toolbarActions .iconBtn { width: 100%; }
+  .renameInlineForm { grid-template-columns: 1fr; }
   .metricStrip { grid-template-columns: 1fr; }
   .attentionGrid, .impactAreaGrid, .metricInsightGrid, .comparisonGrid { grid-template-columns: 1fr; }
   .o2cMatrix { grid-template-columns: 1fr; }
@@ -1634,6 +1849,23 @@ tbody tr:last-child td { border-bottom: 0; }
   }
   .compareTable .scenarioCell strong, .compareTable .scenarioCell span {
     white-space: normal;
+  }
+  .rowActions {
+    width: 100%;
+  }
+  .rowActions .iconBtn,
+  .rowActions .iconDanger {
+    flex: 1 1 0;
+    width: auto;
+  }
+  .scenarioNameEditor {
+    grid-template-columns: 1fr;
+  }
+  .compactChartStats {
+    grid-template-columns: 1fr;
+  }
+  .compactChartList {
+    max-height: none;
   }
   .dataGridTop { border-bottom: 1px solid #e3ebf2; }
   .tableWrap {

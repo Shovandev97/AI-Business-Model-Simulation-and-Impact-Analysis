@@ -17,7 +17,7 @@ public class WebConfig {
   public FilterRegistrationBean<CorsFilter> corsFilter(BmsProperties properties) {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(List.of(properties.getCorsOrigin()));
-    config.setAllowedMethods(List.of("GET", "POST", "DELETE", "OPTIONS"));
+    config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
